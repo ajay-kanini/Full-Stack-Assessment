@@ -1,29 +1,26 @@
 ﻿using HospitalManagement.Context;
 using HospitalManagement.Interface;
 using HospitalManagement.Models;
-using HospitalManagement.Models.DTO;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace HospitalManagement.Service
 {
-    public class DoctorRepo : IRepo<Doctor, int>
+    public class PatientRepo : IRepo<Patient, int>
     {
         private HospitalContext _hospitalContext;
 
-        public DoctorRepo(HospitalContext hospitalContext)
+        public PatientRepo(HospitalContext hospitalContext)
         {
             _hospitalContext = hospitalContext;
         }
-
-        public async Task<Doctor?> Add(Doctor item)
+        public async Task<Patient?> Add(Patient item)
         {
-            var transaction = _hospitalContext.Database.BeginTransaction(); 
+            var transaction = _hospitalContext.Database.BeginTransaction();
             try
             {
-                transaction.CreateSavepointAsync("Add Doctor");
-                _hospitalContext.Doctors.Add(item);
+                transaction.CreateSavepointAsync("Add patients");
+                _hospitalContext.Patients.Add(item);
                 await _hospitalContext.SaveChangesAsync();
                 transaction.Commit();
                 return item;
@@ -35,19 +32,19 @@ namespace HospitalManagement.Service
             }
         }
 
-        public Task<Doctor> Delete(Doctor item)
+        public Task<Patient?> Delete(Patient item)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<Doctor> Get(int key)
+        public async Task<Patient?> Get(int key)
         {
             try
             {
-                var doctor = await _hospitalContext.Doctors.FirstOrDefaultAsync(u => u.Id == key);
-                if(doctor != null)
+                var patient = await _hospitalContext.Patients.FirstOrDefaultAsync(u => u.Id == key);
+                if (patient != null)
                 {
-                    return doctor;
+                    return patient;
                 }
                 else
                 {
@@ -60,10 +57,10 @@ namespace HospitalManagement.Service
             }
         }
 
-        public async Task<ICollection<Doctor>> GetAll()
+        public async Task<ICollection<Patient>?> GetAll()
         {
-            var doctors = await _hospitalContext.Doctors.ToListAsync();
-            if(doctors != null)
+            var doctors = await _hospitalContext.Patients.ToListAsync();
+            if (doctors != null)
             {
                 return doctors;
             }
@@ -73,14 +70,14 @@ namespace HospitalManagement.Service
             }
         }
 
-        public async Task<Doctor> Update(Doctor item)
+        public async Task<Patient?> Update(Patient item)
         {
-            var doctor = Get(item.Id);
-            if (doctor != null)
+            var patient = Get(item.Id);
+            if (patient != null)
             {
                 try
                 {
-                    _hospitalContext.Doctors.Update(item);
+                    _hospitalContext.Patients.Update(item);
                     await _hospitalContext.SaveChangesAsync();
                     return item;
                 }

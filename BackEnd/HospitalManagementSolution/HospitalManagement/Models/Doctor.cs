@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HospitalManagement.Models
 {
     public class Doctor
     {
-        [Key]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
         public string? Name { get; set; }
         public DateTime DateOfBirth { get; set; }
@@ -14,5 +15,6 @@ namespace HospitalManagement.Models
         public string? Qualifications { get; set; }     
         public string? PhoneNumber { get; set; }
         public string? Address { get; set; }
+        public User? Users { get; set; }
     }
 }
