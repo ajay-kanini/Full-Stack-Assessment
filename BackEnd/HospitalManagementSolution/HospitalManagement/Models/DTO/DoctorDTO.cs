@@ -2,6 +2,6 @@
 {
     public class DoctorDTO : Doctor
     {
-        public string? Password { get; set; }
+       public string? Password { get; set; }
     }
 }

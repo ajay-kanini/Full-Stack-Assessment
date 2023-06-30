@@ -34,7 +34,7 @@ namespace HospitalManagement.Service
             doctorDTO.Users.Status = "Approved";
             var userResult = await _userRepo.Add(doctorDTO.Users);
             if(userResult == null) return null;
-            doctorDTO.Id = userResult.UserId;
+            doctorDTO.Id = userResult.Id;
             var doctorResult = await _doctorRepo.Add(doctorDTO);
             if (userResult != null && doctorResult != null)
             {
@@ -46,18 +46,64 @@ namespace HospitalManagement.Service
             return user;
         }
 
-        public Task<UserDTO> PatientRegistration(PatientDTO patientDTO)
+        public async Task<UserDTO> PatientRegistration(PatientDTO patientDTO)
         {
-            throw new NotImplementedException();
+            UserDTO? user = null;
+            var hmac = new HMACSHA512();
+            patientDTO.Users.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(patientDTO.Password ?? "1234"));
+            patientDTO.Users.PasswordKey = hmac.Key;
+            patientDTO.Users.Role = "Patient";
+            var userResult = await _userRepo.Add(patientDTO.Users);
+            if (userResult == null) return null;
+            patientDTO.Id = userResult.Id;
+            var patientResult = await _patientRepo.Add(patientDTO);
+            if (userResult != null && patientResult != null)
+            {
+                user = new UserDTO();
+                user.Id = patientResult.Id;
+                user.Role = userResult.Role;
+                user.Token = _generateToken.GenerateToken(user);
+            }
+            return user;
         }
-        public Task<UserDTO> Login(UserDTO userDTO)
+        public async Task<UserDTO> Login(UserDTO userDTO)
         {
-            throw new NotImplementedException();
+            userDTO=await GetUserByMail(userDTO);
+            var userData = await _userRepo.Get(userDTO.Id);
+            if (userData != null)
+            {
+                var hmac = new HMACSHA512(userData.PasswordKey);
+                var userPass = hmac.ComputeHash(Encoding.UTF8.GetBytes(userDTO.Password));
+                for (int i = 0; i < userPass.Length; i++)
+                {
+                    if (userPass[i] != userData.PasswordHash[i])
+                        return null;
+                }
+                userDTO = new UserDTO();
+                userDTO.Id = userData.Id;
+                userDTO.Role = userData.Role;
+                userDTO.Token = _generateToken.GenerateToken(userDTO);
+            }
+            return userDTO;
         }
 
-        public Task<UserDTO> UpdateDoctor(User user)
+        public async Task<User> UpdateDoctor(User user)
         {
-            throw new NotImplementedException();
+            var checkUser = await _userRepo.Update(user);
+            if (checkUser != null)
+                return checkUser;
+            else
+                return null;
         }
+
+        public async Task<UserDTO> GetUserByMail(UserDTO userDTO)
+        {
+            var users = await _userRepo.GetAll();
+            var user = users.FirstOrDefault(u => u.Mail == userDTO.Mail);
+            userDTO.Id = user.Id;
+            return userDTO;
+        }
+
+
     }
 }

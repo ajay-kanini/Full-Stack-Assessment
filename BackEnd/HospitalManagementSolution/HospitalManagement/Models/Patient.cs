@@ -9,7 +9,6 @@ namespace HospitalManagement.Models
         public int Id { get; set; }
         public string? Name { get; set; }
         public string? PhoneNumber { get; set; }
-        public string? Email { get; set; }
         public DateTime DateOfBirth { get; set; }
         public int Age
         {
@@ -26,5 +25,6 @@ namespace HospitalManagement.Models
             }
         }
         public string? Address { get; set; }
+        public User? Users { get; set; }
     }
 }

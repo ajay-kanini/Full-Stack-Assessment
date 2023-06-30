@@ -41,7 +41,7 @@ namespace HospitalManagement.Service
         {
             try
             {
-                var patient = await _hospitalContext.Users.FirstOrDefaultAsync(u => u.UserId == key);
+                var patient = await _hospitalContext.Users.FirstOrDefaultAsync(u => u.Id == key);
                 if (patient != null)
                 {
                     return patient;
@@ -72,7 +72,7 @@ namespace HospitalManagement.Service
 
         public async Task<User?> Update(User item)
         {
-            var user = await Get(item.UserId);
+            var user = await Get(item.Id);
             if (user == null)
                 return null;            
             else if (user.Status == "Not Approved")
