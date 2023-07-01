@@ -40,7 +40,6 @@ namespace HospitalManagement.Controllers
         }
 
         [HttpPut("Update Doctor Status")]
-
         public async Task<ActionResult<User>> UpdateDoctorStatus(User user)
         {
             var doctor = await _service.UpdateDoctor(user);
@@ -51,12 +50,21 @@ namespace HospitalManagement.Controllers
         }
 
         [HttpPost("Login")]
-        
         public async Task<ActionResult<UserDTO>> Login(UserDTO userDTO) 
         {
             var doctor = await _service.Login(userDTO);
             if (doctor != null)
                 return Created("Doctor Updated", doctor);
+            else
+                return BadRequest("Unable to fetch");
+        }
+
+        [HttpGet("Get All Doctors")]
+        public async Task<ActionResult<Doctor>> GetDoctorDetails()
+        {
+            var doctor = await _service.GetAllDoctors();
+            if (doctor != null)
+                return Ok(doctor);
             else
                 return BadRequest("Unable to fetch");
         }

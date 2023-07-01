@@ -19,7 +19,7 @@ namespace HospitalManagement.Service
             var transaction = _hospitalContext.Database.BeginTransaction();
             try
             {
-                transaction.CreateSavepointAsync("Add patients");
+                await transaction.CreateSavepointAsync("Add patients");
                 _hospitalContext.Patients.Add(item);
                 await _hospitalContext.SaveChangesAsync();
                 transaction.Commit();

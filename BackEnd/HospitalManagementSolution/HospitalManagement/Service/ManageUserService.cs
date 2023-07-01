@@ -12,7 +12,6 @@ namespace HospitalManagement.Service
         private IRepo<Patient, int> _patientRepo;
         private IRepo<User, int> _userRepo;
         private IGenerateToken _generateToken;
-
         public ManageUserService(
             IRepo<Doctor, int> doctorRepo,
             IRepo<Patient, int> patientRepo,
@@ -30,8 +29,8 @@ namespace HospitalManagement.Service
             var hmac = new HMACSHA512();
             doctorDTO.Users.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(doctorDTO.Password ?? "1234"));
             doctorDTO.Users.PasswordKey = hmac.Key;
-            doctorDTO.Users.Role = "Admin";
-            doctorDTO.Users.Status = "Approved";
+            doctorDTO.Users.Role = "Doctor";
+            doctorDTO.Users.Status = "Not Approved";
             var userResult = await _userRepo.Add(doctorDTO.Users);
             if(userResult == null) return null;
             doctorDTO.Id = userResult.Id;
@@ -39,7 +38,7 @@ namespace HospitalManagement.Service
             if (userResult != null && doctorResult != null)
             {
                 user = new UserDTO();
-                user.Id = doctorResult.Id;
+                user.Id = userResult.Id;
                 user.Role = userResult.Role;
                 user.Token = _generateToken.GenerateToken(user);
             }
@@ -80,6 +79,7 @@ namespace HospitalManagement.Service
                         return null;
                 }
                 userDTO = new UserDTO();
+                userDTO.Mail = userData.Mail; 
                 userDTO.Id = userData.Id;
                 userDTO.Role = userData.Role;
                 userDTO.Token = _generateToken.GenerateToken(userDTO);
@@ -104,6 +104,15 @@ namespace HospitalManagement.Service
             return userDTO;
         }
 
-
+        public async Task<ICollection<Doctor>> GetAllDoctors()
+        {
+            var doctors = await _doctorRepo.GetAll();
+            if (doctors != null)
+            {
+                return doctors;
+            }
+            else
+                return null;
+        }
     }
 }
