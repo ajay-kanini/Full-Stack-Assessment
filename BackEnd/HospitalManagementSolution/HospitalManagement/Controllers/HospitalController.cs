@@ -1,6 +1,7 @@
 ﻿using HospitalManagement.Interface;
 using HospitalManagement.Models;
 using HospitalManagement.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -61,6 +62,8 @@ namespace HospitalManagement.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred: " + ex.Message);
             }
         }
+
+        [Authorize(Roles="Admin")]
 
         [HttpPut]
         [ProducesResponseType(typeof(Doctor), StatusCodes.Status201Created)]
