@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HospitalManagement.Migrations
 {
     [DbContext(typeof(HospitalContext))]
-    [Migration("20230630105318_init")]
-    partial class init
+    [Migration("20230701162335_in")]
+    partial class @in
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -50,7 +50,13 @@ namespace HospitalManagement.Migrations
                     b.Property<string>("Specialization")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("UsersId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("age")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -68,7 +74,7 @@ namespace HospitalManagement.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Age")
+                    b.Property<int?>("Age")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("DateOfBirth")
@@ -108,9 +114,6 @@ namespace HospitalManagement.Migrations
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Role")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

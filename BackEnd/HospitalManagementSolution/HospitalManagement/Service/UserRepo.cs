@@ -2,6 +2,7 @@
 using HospitalManagement.Interface;
 using HospitalManagement.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
 
 namespace HospitalManagement.Service
 {
@@ -19,15 +20,15 @@ namespace HospitalManagement.Service
             var transaction = _hospitalContext.Database.BeginTransaction();
             try
             {
-                transaction.CreateSavepointAsync("Add Users");
+                //transaction.CreateSavepointAsync("Add Users");
                 _hospitalContext.Users.Add(item);
+                await transaction.CommitAsync();
                 await _hospitalContext.SaveChangesAsync();
-                transaction.Commit();
                 return item;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                transaction.RollbackToSavepoint("Add Doctor");
+                await transaction.RollbackAsync();
                 throw new Exception();
             }
         }
@@ -72,19 +73,23 @@ namespace HospitalManagement.Service
 
         public async Task<User?> Update(User item)
         {
-            var user = await Get(item.Id);
-            if (user == null)
-                return null;            
-            else if (user.Status == "Not Approved")
+            var user = Get(item.Id);
+            if (user != null)
             {
-                user.Status = "Approved";               
+                try
+                {
+                    _hospitalContext.Users.Update(item);
+                    await _hospitalContext.SaveChangesAsync();
+                    return item;
+                }
+                catch (Exception err)
+                {
+                    Console.WriteLine("ERROR");
+                    Console.WriteLine(err.Message);
+                    Debug.WriteLine(err.Message);
+                }
             }
-            else if (user.Status == "Approved")
-            {
-                user.Status = "Not Approved";
-            }
-            await _hospitalContext.SaveChangesAsync();
-            return user;
+            return null;
         }
     }
 }

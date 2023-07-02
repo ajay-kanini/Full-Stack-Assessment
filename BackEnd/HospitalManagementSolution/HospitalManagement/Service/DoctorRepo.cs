@@ -75,23 +75,19 @@ namespace HospitalManagement.Service
 
         public async Task<Doctor> Update(Doctor item)
         {
-            var doctor = Get(item.Id);
-            if (doctor != null)
+            var user = await Get(item.Id);
+            if (user == null)
+                return null;
+            else if (user.Status == "Not Approved")
             {
-                try
-                {
-                    _hospitalContext.Doctors.Update(item);
-                    await _hospitalContext.SaveChangesAsync();
-                    return item;
-                }
-                catch (Exception err)
-                {
-                    Console.WriteLine("ERROR");
-                    Console.WriteLine(err.Message);
-                    Debug.WriteLine(err.Message);
-                }
+                user.Status = "Approved";
             }
-            return null;
+            else if (user.Status == "Approved")
+            {
+                user.Status = "Not Approved";
+            }
+            await _hospitalContext.SaveChangesAsync();
+            return user;
         }
     }
 }

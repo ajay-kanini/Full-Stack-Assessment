@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HospitalManagement.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[Action]")]
     [ApiController]
     [EnableCors("MyCors")]
     public class HospitalController : ControllerBase
@@ -19,7 +19,7 @@ namespace HospitalManagement.Controllers
             _service = service;
         }
 
-        [HttpPost("Doctor Registration")]
+        [HttpPost]
         public async Task<ActionResult<UserDTO?>> RegisterDoctor(DoctorDTO doctorDTO)
         {
             var doctor = await _service.DoctorRegistration(doctorDTO);
@@ -29,7 +29,7 @@ namespace HospitalManagement.Controllers
                 return BadRequest("Unable to fetch");
         }
 
-        [HttpPost("Patient Registration")]
+        [HttpPost]
         public async Task<ActionResult<UserDTO?>> RegisterPatient(PatientDTO patientDTO)
         {
             var patient = await _service.PatientRegistration(patientDTO);
@@ -39,17 +39,17 @@ namespace HospitalManagement.Controllers
                 return BadRequest("Unable to fetch");
         }
 
-        [HttpPut("Update Doctor Status")]
-        public async Task<ActionResult<User>> UpdateDoctorStatus(User user)
+        [HttpPut]
+        public async Task<ActionResult<Doctor>> UpdateDoctorStatus(Doctor doctor)
         {
-            var doctor = await _service.UpdateDoctor(user);
-            if (doctor != null)
-                return Created("Doctor Updated", doctor);
+            var doctors = await _service.UpdateDoctor(doctor);
+            if (doctors != null)
+                return Created("Doctor Updated", doctors);
             else
                 return BadRequest("Unable to fetch");
         }
 
-        [HttpPost("Login")]
+        [HttpPost]
         public async Task<ActionResult<UserDTO>> Login(UserDTO userDTO) 
         {
             var doctor = await _service.Login(userDTO);
@@ -59,7 +59,7 @@ namespace HospitalManagement.Controllers
                 return BadRequest("Unable to fetch");
         }
 
-        [HttpGet("Get All Doctors")]
+        [HttpGet]
         public async Task<ActionResult<Doctor>> GetDoctorDetails()
         {
             var doctor = await _service.GetAllDoctors();

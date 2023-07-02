@@ -30,7 +30,7 @@ namespace HospitalManagement.Service
             doctorDTO.Users.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(doctorDTO.Password ?? "1234"));
             doctorDTO.Users.PasswordKey = hmac.Key;
             doctorDTO.Users.Role = "Doctor";
-            doctorDTO.Users.Status = "Not Approved";
+            doctorDTO.Status = "Not Approved";
             var userResult = await _userRepo.Add(doctorDTO.Users);
             if(userResult == null) return null;
             doctorDTO.Id = userResult.Id;
@@ -87,9 +87,9 @@ namespace HospitalManagement.Service
             return userDTO;
         }
 
-        public async Task<User> UpdateDoctor(User user)
+        public async Task<Doctor> UpdateDoctor(Doctor doctor)
         {
-            var checkUser = await _userRepo.Update(user);
+            var checkUser = await _doctorRepo.Update(doctor);
             if (checkUser != null)
                 return checkUser;
             else

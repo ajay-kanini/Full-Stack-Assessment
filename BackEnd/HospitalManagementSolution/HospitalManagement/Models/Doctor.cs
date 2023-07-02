@@ -9,25 +9,13 @@ namespace HospitalManagement.Models
         public int Id { get; set; }
         public string? Name { get; set; }
         public DateTime DateOfBirth { get; set; }
-        public int Age
-        {
-            get
-            {
-                var year = DateTime.Now.Year - DateOfBirth.Year;
-                if (DateTime.Now.Month > DateOfBirth.Month)
-                    year--;
-                return year;
-            }
-            set
-            {
-                Age = value;
-            }
-        }
+        public int? age { get; set; }
         public string? Gender { get; set; }
         public string? Specialization { get; set; }
         public string? Qualifications { get; set; }     
         public string? PhoneNumber { get; set; }
         public string? Address { get; set; }
+        public string? Status { get; set; }
         public User? Users { get; set; }
     }
 }
