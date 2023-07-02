@@ -11,5 +11,6 @@ namespace HospitalManagement.Interface
         public Task<Doctor> UpdateDoctor(Doctor doctor);
         public Task<UserDTO> GetUserByMail(UserDTO userDTO);
         public Task<ICollection<Doctor>> GetAllDoctors();
+        public Task<Doctor> GetDoctor(int key);
     }
 }

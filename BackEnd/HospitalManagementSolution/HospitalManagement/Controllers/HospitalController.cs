@@ -124,5 +124,26 @@ namespace HospitalManagement.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred: " + ex.Message);
             }
         }
+
+        [HttpGet]
+        [ProducesResponseType(typeof(Doctor), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<Doctor>> GetOneDoctor(int key)
+        {
+            try
+            {
+                var doctor = await _service.GetDoctor(key);
+                if (doctor != null)
+                    return Ok(doctor);
+                else
+                    return BadRequest("Unable to fetch");
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or perform any other necessary actions
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred: " + ex.Message);
+            }
+        }
     }
 }

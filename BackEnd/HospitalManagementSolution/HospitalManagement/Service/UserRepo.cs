@@ -20,6 +20,10 @@ namespace HospitalManagement.Service
 
         public async Task<User?> Add(User item)
         {
+            if (_hospitalContext == null || _hospitalContext.Users == null)
+            {
+                throw new Exception("Context is null");
+            }
             var transaction = _hospitalContext.Database.BeginTransaction();
             try
             {
@@ -44,6 +48,10 @@ namespace HospitalManagement.Service
 
         public async Task<User?> Get(int key)
         {
+            if (_hospitalContext == null || _hospitalContext.Users == null)
+            {
+                throw new Exception("Context is null");
+            }
             try
             {
                 var user = await _hospitalContext.Users.FirstOrDefaultAsync(u => u.Id == key);
@@ -59,6 +67,10 @@ namespace HospitalManagement.Service
 
         public async Task<ICollection<User>?> GetAll()
         {
+            if (_hospitalContext == null || _hospitalContext.Users == null)
+            {
+                throw new Exception("Context is null");
+            }
             try
             {
                 var users = await _hospitalContext.Users.ToListAsync();
@@ -74,6 +86,10 @@ namespace HospitalManagement.Service
 
         public async Task<User?> Update(User item)
         {
+            if (_hospitalContext == null || _hospitalContext.Users == null)
+            {
+                throw new Exception("Context is null");
+            }
             try
             {
                 var user = await Get(item.Id);

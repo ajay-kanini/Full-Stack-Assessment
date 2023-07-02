@@ -2,6 +2,7 @@
 using HospitalManagement.Models;
 using HospitalManagement.Models.DTO;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -30,9 +31,11 @@ namespace HospitalManagement.Service
 
         public async Task<UserDTO> DoctorRegistration(DoctorDTO doctorDTO)
         {
-            UserDTO user = null;
+            UserDTO user = new UserDTO();
             try
             {
+                if (doctorDTO.Users == null)
+                    throw new Exception("User in the doctorDTO is null");
                 var hmac = new HMACSHA512();
                 doctorDTO.Users.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(doctorDTO.Password ?? "1234"));
                 doctorDTO.Users.PasswordKey = hmac.Key;
@@ -56,8 +59,8 @@ namespace HospitalManagement.Service
             catch (Exception ex)
             {
                 // Handle the exception or log the error
-                Console.WriteLine($"Doctor registration failed: {ex.Message}");
-                return null;
+                Debug.WriteLine($"Doctor registration failed: {ex.Message}");
+                throw new Exception("Doctor registration failed");
             }
 
             return user;
@@ -65,9 +68,11 @@ namespace HospitalManagement.Service
 
         public async Task<UserDTO> PatientRegistration(PatientDTO patientDTO)
         {
-            UserDTO user = null;
+            UserDTO user = new UserDTO();
             try
             {
+                if(patientDTO.Users == null)
+                    throw new Exception("User in the PatientDTO is null");
                 var hmac = new HMACSHA512();
                 patientDTO.Users.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(patientDTO.Password ?? "1234"));
                 patientDTO.Users.PasswordKey = hmac.Key;
@@ -90,8 +95,8 @@ namespace HospitalManagement.Service
             catch (Exception ex)
             {
                 // Handle the exception or log the error
-                Console.WriteLine($"Patient registration failed: {ex.Message}");
-                return null;
+                Debug.WriteLine($"Patient registration failed: {ex.Message}");
+                throw new Exception("Patient registration failed");
             }
 
             return user;
@@ -107,14 +112,16 @@ namespace HospitalManagement.Service
                     throw new Exception();
                 }
                 var userData = await _userRepo.Get(userDTO.Id);
-                if (userData != null)
+                if (userData != null && userData.PasswordKey != null && userDTO.Password != null)
                 {
                     var hmac = new HMACSHA512(userData.PasswordKey);
                     var userPass = hmac.ComputeHash(Encoding.UTF8.GetBytes(userDTO.Password));
                     for (int i = 0; i < userPass.Length; i++)
                     {
-                        if (userPass[i] != userData.PasswordHash[i])
-                            return null;
+                        if (userData == null || userData.PasswordHash == null || userData?.PasswordHash[i] == null)
+                            throw new Exception("user data is null");
+                        if (userPass[i] != userData?.PasswordHash[i])
+                            throw new Exception("user password is wrong");
                     }
 
                     userDTO = new UserDTO();
@@ -127,8 +134,8 @@ namespace HospitalManagement.Service
             catch (Exception ex)
             {
                 // Handle the exception or log the error
-                Console.WriteLine($"Login failed: {ex.Message}");
-                return null;
+                Debug.WriteLine($"Login failed: {ex.Message}");
+                throw new Exception("Login failed");
             }
 
             return userDTO;
@@ -147,8 +154,8 @@ namespace HospitalManagement.Service
             catch (Exception ex)
             {
                 // Handle the exception or log the error
-                Console.WriteLine($"Update doctor failed: {ex.Message}");
-                return null;
+                Debug.WriteLine($"Update doctor failed: {ex.Message}");
+                throw new Exception("Failed to update doctor");
             }
         }
 
@@ -157,6 +164,10 @@ namespace HospitalManagement.Service
             try
             {
                 var users = await _userRepo.GetAll();
+                if(users == null)
+                {
+                    throw new Exception("no data available!!!");
+                }
 
                 var user = users.FirstOrDefault(u => u.Mail == userDTO.Mail);
                 if (user == null)
@@ -167,8 +178,8 @@ namespace HospitalManagement.Service
             catch (Exception ex)
             {
                 // Handle the exception or log the error
-                Console.WriteLine($"Get user by mail failed: {ex.Message}");
-                return null;
+                Debug.WriteLine($"Get user by mail failed: {ex.Message}");
+                throw new Exception("Get user by mail failed");
             }
 
             return userDTO;
@@ -187,9 +198,27 @@ namespace HospitalManagement.Service
             catch (Exception ex)
             {
                 // Handle the exception or log the error
-                Console.WriteLine($"Get all doctors failed: {ex.Message}");
-                return null;
+                Debug.WriteLine($"Get all doctors failed: {ex.Message}");
+                throw new Exception("Get all doctor failed");
+            }
+        }
+
+        public async Task<Doctor> GetDoctor(int key)
+        {
+            try
+            {
+                var doctor = await _doctorRepo.Get(key);
+                if (doctor == null)
+                    throw new Exception("Failed to retrieve doctors");
+                return doctor;
+            }
+
+            catch (Exception ex)
+            {
+                // Handle the exception or log the error
+                Debug.WriteLine($"Get doctor failed: {ex.Message}");
+                throw new Exception("Get doctor failed");
             }
         }
     }
-}
+ }

@@ -21,6 +21,8 @@ namespace HospitalManagement.Service
         {
             string token = string.Empty;
             //User identity
+            if (userDTO.Role == null)
+                throw new Exception("Role is null for token generation");
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.NameId,userDTO.Id.ToString()),

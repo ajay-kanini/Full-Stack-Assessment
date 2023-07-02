@@ -24,6 +24,10 @@ namespace HospitalManagement.Service
         {
             using (var transaction = _hospitalContext.Database.BeginTransaction())
             {
+                if (_hospitalContext == null || _hospitalContext.Doctors == null)
+                {
+                    throw new Exception("Context is null");
+                }
                 try
                 {
                     await transaction.CreateSavepointAsync("Add Doctor");
@@ -43,6 +47,10 @@ namespace HospitalManagement.Service
 
         public async Task<Doctor?> Delete(Doctor item)
         {
+            if(_hospitalContext == null || _hospitalContext.Doctors == null)
+            {
+                throw new Exception("Context is null");
+            }
             try
             {
                 _hospitalContext.Doctors.Remove(item);
@@ -58,6 +66,10 @@ namespace HospitalManagement.Service
 
         public async Task<Doctor?> Get(int key)
         {
+            if (_hospitalContext == null || _hospitalContext.Doctors == null)
+            {
+                throw new Exception("Context is null");
+            }
             try
             {
                 var doctor = await _hospitalContext.Doctors.FirstOrDefaultAsync(u => u.Id == key);
@@ -79,6 +91,10 @@ namespace HospitalManagement.Service
 
         public async Task<ICollection<Doctor>?> GetAll()
         {
+            if (_hospitalContext == null || _hospitalContext.Doctors == null)
+            {
+                throw new Exception("Context is null");
+            }
             try
             {
                 var doctors = await _hospitalContext.Doctors.ToListAsync();
