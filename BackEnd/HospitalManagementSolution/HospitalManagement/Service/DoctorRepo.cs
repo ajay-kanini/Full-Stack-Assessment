@@ -4,7 +4,10 @@ using HospitalManagement.Models;
 using HospitalManagement.Models.DTO;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace HospitalManagement.Service
 {
@@ -19,75 +22,104 @@ namespace HospitalManagement.Service
 
         public async Task<Doctor?> Add(Doctor item)
         {
-            var transaction = _hospitalContext.Database.BeginTransaction(); 
+            using (var transaction = _hospitalContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    await transaction.CreateSavepointAsync("Add Doctor");
+                    _hospitalContext.Doctors.Add(item);
+                    await _hospitalContext.SaveChangesAsync();
+                    transaction.Commit();
+                    return item;
+                }
+                catch (Exception ex)
+                {
+                    transaction.RollbackToSavepoint("Add Doctor");
+                    Debug.WriteLine($"Exception occurred while adding doctor: {ex}");
+                    throw; // Rethrow the exception to be handled at a higher level
+                }
+            }
+        }
+
+        public async Task<Doctor?> Delete(Doctor item)
+        {
             try
             {
-                await transaction.CreateSavepointAsync("Add Doctor");
-                _hospitalContext.Doctors.Add(item);
+                _hospitalContext.Doctors.Remove(item);
                 await _hospitalContext.SaveChangesAsync();
-                transaction.Commit();
                 return item;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                transaction.RollbackToSavepoint("Add Doctor");
-                throw new Exception();
+                Debug.WriteLine($"Exception occurred while deleting doctor: {ex}");
+                throw; // Rethrow the exception to be handled at a higher level
             }
         }
 
-        public Task<Doctor> Delete(Doctor item)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<Doctor> Get(int key)
+        public async Task<Doctor?> Get(int key)
         {
             try
             {
                 var doctor = await _hospitalContext.Doctors.FirstOrDefaultAsync(u => u.Id == key);
-                if(doctor != null)
+                if (doctor != null)
                 {
                     return doctor;
                 }
                 else
                 {
-                    return null;
+                    throw new InvalidOperationException($"Doctor with ID {key} not found"); // Throw an exception to indicate that the doctor was not found
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw new Exception();
+                Debug.WriteLine($"Exception occurred while retrieving doctor: {ex}");
+                throw; // Rethrow the exception to be handled at a higher level
             }
         }
 
-        public async Task<ICollection<Doctor>> GetAll()
+        public async Task<ICollection<Doctor>?> GetAll()
         {
-            var doctors = await _hospitalContext.Doctors.ToListAsync();
-            if(doctors != null)
+            try
             {
+                var doctors = await _hospitalContext.Doctors.ToListAsync();
                 return doctors;
             }
-            else
+            catch (Exception ex)
             {
-                return null;
+                Debug.WriteLine($"Exception occurred while retrieving doctors: {ex}");
+                throw; // Rethrow the exception to be handled at a higher level
             }
         }
 
-        public async Task<Doctor> Update(Doctor item)
+        public async Task<Doctor?> Update(Doctor item)
         {
-            var user = await Get(item.Id);
-            if (user == null)
-                return null;
-            else if (user.Status == "Not Approved")
+            try
             {
-                user.Status = "Approved";
+                var doctor = await Get(item.Id);
+                if (doctor == null)
+                    throw new InvalidOperationException($"Doctor with ID {item.Id} not found");
+
+                if (doctor.Status == "Not Approved")
+                {
+                    doctor.Status = "Approved";
+                }
+                else if (doctor.Status == "Approved")
+                {
+                    doctor.Status = "Not Approved";
+                }
+
+                await _hospitalContext.SaveChangesAsync();
+                return doctor;
             }
-            else if (user.Status == "Approved")
+            catch (InvalidOperationException)
             {
-                user.Status = "Not Approved";
+                throw; // Rethrow the exception to be handled at a higher level
             }
-            await _hospitalContext.SaveChangesAsync();
-            return user;
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Exception occurred while updating doctor: {ex}");
+                throw; // Rethrow the exception to be handled at a higher level
+            }
         }
     }
 }

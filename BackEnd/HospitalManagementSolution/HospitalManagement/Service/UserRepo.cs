@@ -2,7 +2,10 @@
 using HospitalManagement.Interface;
 using HospitalManagement.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace HospitalManagement.Service
 {
@@ -14,22 +17,23 @@ namespace HospitalManagement.Service
         {
             _hospitalContext = hospitalContext;
         }
+
         public async Task<User?> Add(User item)
         {
-
             var transaction = _hospitalContext.Database.BeginTransaction();
             try
             {
-                //transaction.CreateSavepointAsync("Add Users");
                 _hospitalContext.Users.Add(item);
-                await transaction.CommitAsync();
                 await _hospitalContext.SaveChangesAsync();
+                await transaction.CommitAsync();
                 return item;
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                throw new Exception();
+                // Handle the exception or log the error
+                Console.WriteLine($"Failed to add user: {ex.Message}");
+                throw new Exception("Failed to add user", ex);
             }
         }
 
@@ -42,52 +46,49 @@ namespace HospitalManagement.Service
         {
             try
             {
-                var patient = await _hospitalContext.Users.FirstOrDefaultAsync(u => u.Id == key);
-                if (patient != null)
-                {
-                    return patient;
-                }
-                else
-                {
-                    return null;
-                }
+                var user = await _hospitalContext.Users.FirstOrDefaultAsync(u => u.Id == key);
+                return user;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw new Exception();
+                // Handle the exception or log the error
+                Console.WriteLine($"Failed to get user: {ex.Message}");
+                throw new Exception("Failed to get user", ex);
             }
         }
 
         public async Task<ICollection<User>?> GetAll()
         {
-            var users = await _hospitalContext.Users.ToListAsync();
-            if (users != null)
+            try
             {
+                var users = await _hospitalContext.Users.ToListAsync();
                 return users;
             }
-            else
+            catch (Exception ex)
             {
-                return null;
+                // Handle the exception or log the error
+                Console.WriteLine($"Failed to get all users: {ex.Message}");
+                throw new Exception("Failed to get all users", ex);
             }
         }
 
         public async Task<User?> Update(User item)
         {
-            var user = Get(item.Id);
-            if (user != null)
+            try
             {
-                try
+                var user = await Get(item.Id);
+                if (user != null)
                 {
                     _hospitalContext.Users.Update(item);
                     await _hospitalContext.SaveChangesAsync();
                     return item;
                 }
-                catch (Exception err)
-                {
-                    Console.WriteLine("ERROR");
-                    Console.WriteLine(err.Message);
-                    Debug.WriteLine(err.Message);
-                }
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception or log the error
+                Console.WriteLine($"Failed to update user: {ex.Message}");
+                Debug.WriteLine($"Failed to update user: {ex.Message}");
             }
             return null;
         }
