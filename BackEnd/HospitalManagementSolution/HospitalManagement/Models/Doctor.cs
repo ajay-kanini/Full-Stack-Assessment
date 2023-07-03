@@ -14,7 +14,7 @@ namespace HospitalManagement.Models
         [Range(1, int.MaxValue, ErrorMessage = "Age must be a positive number")]
         public int? Age { get; set; }
         public string? Gender { get; set; }
-        public string? Specialization { get; set; }
+        public string? Specialization { get; set; } 
         public string? Qualifications { get; set; }
 
         [Phone(ErrorMessage = "Invalid Phone Number")]
