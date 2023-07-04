@@ -24,18 +24,17 @@ namespace UnitTesting
         {
             using (var userContext = new HospitalContext(GetDbcontextOption()))
             {
-
                 userContext.Patients.Add(new Patient
                 {
                     Name = "Gimu G",
                     PhoneNumber = "9876543210",
                     DateOfBirth = new DateTime(2001, 02, 14),
-                    Age = 22,   
+                    Age = 22,
                     Address = "Erode, TamilNadu",
-                    Users = new User() { PasswordHash = new byte[] { }, PasswordKey = new byte[] { }, Mail= "summa.kanini@gmail.com", Role = "Intern"},
+                    Users = new User() { PasswordHash = new byte[] { }, PasswordKey = new byte[] { }, Mail = "summa.kanini@gmail.com", Role = "Intern" },
                 });
                 await userContext.SaveChangesAsync();
-
+                             
             }
             using (var userContext = new HospitalContext(GetDbcontextOption()))
             {
