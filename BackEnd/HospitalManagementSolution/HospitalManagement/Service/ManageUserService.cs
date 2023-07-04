@@ -12,11 +12,11 @@ namespace HospitalManagement.Service
 {
     public class ManageUserService : IManageUsers
     {
-        private IRepo<Doctor, int> _doctorRepo;
-        private IRepo<Patient, int> _patientRepo;
-        private IRepo<User, int> _userRepo;
-        private IGenerateToken _generateToken;
-
+        private readonly IRepo<Doctor, int> _doctorRepo;
+        private readonly IRepo<Patient, int> _patientRepo;
+        private readonly IRepo<User, int> _userRepo;
+        private readonly IGenerateToken _generateToken;
+        
         public ManageUserService(
             IRepo<Doctor, int> doctorRepo,
             IRepo<Patient, int> patientRepo,
@@ -31,7 +31,6 @@ namespace HospitalManagement.Service
 
         public async Task<UserDTO> DoctorRegistration(DoctorDTO doctorDTO)
         {
-            UserDTO user = new UserDTO();
             try
             {
                 if (doctorDTO.Users == null)
@@ -42,19 +41,16 @@ namespace HospitalManagement.Service
                 doctorDTO.Users.Role = "Doctor";
                 doctorDTO.Status = "Not Approved";
 
-                var userResult = await _userRepo.Add(doctorDTO.Users);
-                if (userResult == null)
-                    throw new Exception("Failed to add user");
-
+                var userResult = await _userRepo.Add(doctorDTO.Users) ?? throw new Exception("Failed to add user");
                 doctorDTO.Id = userResult.Id;
-                var doctorResult = await _doctorRepo.Add(doctorDTO);
-                if (doctorResult == null)
-                    throw new Exception("Failed to add doctor");
-
-                user = new UserDTO();
-                user.Id = userResult.Id;
-                user.Role = userResult.Role;
+                var doctorResult = await _doctorRepo.Add(doctorDTO) ?? throw new Exception("Failed to add doctor");
+                UserDTO user = new()
+                {
+                    Id = userResult.Id,
+                    Role = userResult.Role
+                };
                 user.Token = _generateToken.GenerateToken(user);
+                return user;
             }
             catch (Exception ex)
             {
@@ -63,12 +59,12 @@ namespace HospitalManagement.Service
                 throw new Exception("Doctor registration failed");
             }
 
-            return user;
+          
         }
 
         public async Task<UserDTO> PatientRegistration(PatientDTO patientDTO)
         {
-            UserDTO user = new UserDTO();
+            
             try
             {
                 if(patientDTO.Users == null)
@@ -78,19 +74,17 @@ namespace HospitalManagement.Service
                 patientDTO.Users.PasswordKey = hmac.Key;
                 patientDTO.Users.Role = "Patient";
 
-                var userResult = await _userRepo.Add(patientDTO.Users);
-                if (userResult == null)
-                    throw new Exception("Failed to add user");
-
+                var userResult = await _userRepo.Add(patientDTO.Users) ?? throw new Exception("Failed to add user");
                 patientDTO.Id = userResult.Id;
-                var patientResult = await _patientRepo.Add(patientDTO);
-                if (patientResult == null)
-                    throw new Exception("Failed to add patient");
-
-                user = new UserDTO();
-                user.Id = patientResult.Id;
-                user.Role = userResult.Role;
+                var patientResult = await _patientRepo.Add(patientDTO) ?? throw new Exception("Failed to add patient");
+                UserDTO user = new();
+                user = new UserDTO
+                {
+                    Id = patientResult.Id,
+                    Role = userResult.Role
+                };
                 user.Token = _generateToken.GenerateToken(user);
+                return user;
             }
             catch (Exception ex)
             {
@@ -98,8 +92,6 @@ namespace HospitalManagement.Service
                 Debug.WriteLine($"Patient registration failed: {ex.Message}");
                 throw new Exception("Patient registration failed");
             }
-
-            return user;
         }
 
         public async Task<UserDTO> Login(UserDTO userDTO)
@@ -124,10 +116,12 @@ namespace HospitalManagement.Service
                             throw new Exception("user password is wrong");
                     }
 
-                    userDTO = new UserDTO();
-                    userDTO.Mail = userData.Mail;
-                    userDTO.Id = userData.Id;
-                    userDTO.Role = userData.Role;
+                    userDTO = new UserDTO
+                    {
+                        Mail = userData.Mail,
+                        Id = userData.Id,
+                        Role = userData.Role
+                    };
                     userDTO.Token = _generateToken.GenerateToken(userDTO);
                 }
             }
@@ -146,10 +140,7 @@ namespace HospitalManagement.Service
             try
             {
                 var checkUser = await _doctorRepo.Update(doctor);
-                if (checkUser == null)
-                    throw new Exception("Failed to update doctor");
-
-                return checkUser;
+                return checkUser ?? throw new Exception("Failed to update doctor");
             }
             catch (Exception ex)
             {
@@ -163,16 +154,8 @@ namespace HospitalManagement.Service
         {
             try
             {
-                var users = await _userRepo.GetAll();
-                if(users == null)
-                {
-                    throw new Exception("no data available!!!");
-                }
-
-                var user = users.FirstOrDefault(u => u.Mail == userDTO.Mail);
-                if (user == null)
-                    throw new Exception("User not found");
-
+                var users = await _userRepo.GetAll() ?? throw new Exception("no data available!!!");
+                var user = users.FirstOrDefault(u => u.Mail == userDTO.Mail) ?? throw new Exception("User not found");
                 userDTO.Id = user.Id;
             }
             catch (Exception ex)
@@ -190,10 +173,7 @@ namespace HospitalManagement.Service
             try
             {
                 var doctors = await _doctorRepo.GetAll();
-                if (doctors == null)
-                    throw new Exception("Failed to retrieve doctors");
-
-                return doctors;
+                return doctors ?? throw new Exception("Failed to retrieve doctors");
             }
             catch (Exception ex)
             {
@@ -208,9 +188,7 @@ namespace HospitalManagement.Service
             try
             {
                 var doctor = await _doctorRepo.Get(key);
-                if (doctor == null)
-                    throw new Exception("Failed to retrieve doctors");
-                return doctor;
+                return doctor ?? throw new Exception("Failed to retrieve doctors");
             }
 
             catch (Exception ex)

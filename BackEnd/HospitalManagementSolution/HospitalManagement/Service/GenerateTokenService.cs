@@ -19,7 +19,6 @@ namespace HospitalManagement.Service
         }
         public string? GenerateToken(UserDTO userDTO)
         {
-            string token = string.Empty;
             //User identity
             if (userDTO.Role == null)
                 throw new Exception("Role is null for token generation");
@@ -40,7 +39,7 @@ namespace HospitalManagement.Service
             //Using the handler to generate the token
             var tokenHandler = new JwtSecurityTokenHandler();
             var myToken = tokenHandler.CreateToken(tokenDescription);
-            token = tokenHandler.WriteToken(myToken);
+            string token = tokenHandler.WriteToken(myToken);
             return token;
         }
 

@@ -11,7 +11,7 @@ namespace HospitalManagement.Service
 {
     public class UserRepo : IRepo<User, int>
     {
-        private HospitalContext _hospitalContext;
+        private readonly HospitalContext _hospitalContext;
 
         public UserRepo(HospitalContext hospitalContext)
         {
@@ -35,7 +35,6 @@ namespace HospitalManagement.Service
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                // Handle the exception or log the error
                 Console.WriteLine($"Failed to add user: {ex.Message}");
                 throw new Exception("Failed to add user", ex);
             }

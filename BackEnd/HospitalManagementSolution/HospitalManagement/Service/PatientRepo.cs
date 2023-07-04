@@ -11,7 +11,7 @@ namespace HospitalManagement.Service
 {
     public class PatientRepo : IRepo<Patient, int>
     {
-        private HospitalContext _hospitalContext;
+        private readonly HospitalContext _hospitalContext;
 
         public PatientRepo(HospitalContext hospitalContext)
         {
