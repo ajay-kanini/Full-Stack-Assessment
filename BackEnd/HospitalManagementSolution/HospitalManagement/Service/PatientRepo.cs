@@ -42,9 +42,30 @@ namespace HospitalManagement.Service
             }
         }
 
-        public Task<Patient?> Delete(Patient item)
+        public async Task<Patient?> Delete(Patient item)
         {
-            throw new NotImplementedException();
+            if (_hospitalContext == null || _hospitalContext.Patients == null)
+            {
+                throw new Exception("Context is null");
+            }
+            try
+            {
+                var patient = await Get(item.Id);
+                if (patient != null)
+                {
+                    _hospitalContext.Patients.Remove(item);
+                    await _hospitalContext.SaveChangesAsync();
+                    return item;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception or log the error
+                Console.WriteLine($"Failed to update patient: {ex.Message}");
+                Debug.WriteLine($"Failed to update patient: {ex.Message}");
+            }
+            return null;
+
         }
 
         public async Task<Patient?> Get(int key)

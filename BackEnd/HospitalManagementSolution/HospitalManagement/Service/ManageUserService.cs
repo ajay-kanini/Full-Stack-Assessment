@@ -112,7 +112,7 @@ namespace HospitalManagement.Service
                     {
                         if (userData == null || userData.PasswordHash == null || userData?.PasswordHash[i] == null)
                             throw new Exception("user data is null");
-                        if (userPass[i] != userData?.PasswordHash[i])
+                        if (userPass[i] != userData.PasswordHash[i])
                             throw new Exception("user password is wrong");
                     }
 
